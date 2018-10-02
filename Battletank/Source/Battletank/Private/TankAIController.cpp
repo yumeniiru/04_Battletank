@@ -3,6 +3,16 @@
 #include "TankAIController.h"
 #include "Battletank.h"
 
+void ATankAIController::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	if (GetPlayerTank())
+	{
+		GetControlledTank()->AimAt(GetPlayerTank()->GetActorLocation());
+	}
+	
+}
+
 void ATankAIController::BeginPlay()
 {
 	Super::BeginPlay();
