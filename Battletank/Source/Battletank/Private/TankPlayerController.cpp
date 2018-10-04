@@ -2,6 +2,7 @@
 
 #include "TankPlayerController.h"
 #include "Battletank.h"
+#include "GameFramework/Actor.h"
 
 
 void ATankPlayerController::Tick(float DeltaTime)
