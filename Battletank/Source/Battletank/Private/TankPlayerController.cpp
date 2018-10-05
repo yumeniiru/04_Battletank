@@ -2,7 +2,9 @@
 
 #include "TankPlayerController.h"
 #include "Battletank.h"
+#include "Engine/World.h"
 #include "GameFramework/Actor.h"
+#include "Tank.h"
 
 
 void ATankPlayerController::Tick(float DeltaTime)
@@ -36,15 +38,16 @@ ATank* ATankPlayerController::GetControlledTank() const
 void ATankPlayerController::AimTowardsCrosshair()
 {
 	if (!GetControlledTank()) { return; }
+	
 	FVector HitLocation;
-	if (GetSightRayHitLocation(HitLocation)) 
+	bool bGotHitLocation = GetSightRayHitLocation(HitLocation);
+	if (bGotHitLocation) 
 	{
 		GetControlledTank()->AimAt(HitLocation);
 	}
-	
 }
 
-bool ATankPlayerController::GetSightRayHitLocation(FVector & HitLocation) const
+bool ATankPlayerController::GetSightRayHitLocation(FVector& HitLocation) const
 {
 	// Viewport sizes
 	int32 SizeX, SizeY;
@@ -54,10 +57,9 @@ bool ATankPlayerController::GetSightRayHitLocation(FVector & HitLocation) const
 	FVector LookDirection;
 	if (GetLookDirection(ScreenLocation, LookDirection))
 	{
-		GetLookVectorHitLocation(LookDirection, HitLocation);
+		return GetLookVectorHitLocation(LookDirection, HitLocation);
 	}
-
-	return true;
+	return false;
 }
 
 bool ATankPlayerController::GetLookDirection(FVector2D ScreenLocation, FVector& LookDirection) const
@@ -76,17 +78,18 @@ bool ATankPlayerController::GetLookVectorHitLocation(FVector LookDirection, FVec
 	FHitResult HitResult;
 	auto StartLocation = PlayerCameraManager->GetCameraLocation();
 	auto EndLocation = StartLocation + (LookDirection * LineTraceRange);
-	if (GetWorld()->LineTraceSingleByChannel(
-		HitResult,
-		StartLocation,
-		EndLocation,
-		ECollisionChannel::ECC_Visibility)
+
+	if (GetWorld()->LineTraceSingleByChannel(HitResult,	
+			StartLocation, 
+			EndLocation, 
+			ECollisionChannel::ECC_Visibility
+			)
 		)
 	{
 		HitLocation = HitResult.Location;
 		return true;
 	}
-	HitLocation = FVector(0);
-	return false;
+		HitLocation = FVector(0);
+		return false;
 }
 
